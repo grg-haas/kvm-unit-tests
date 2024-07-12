@@ -77,8 +77,13 @@ CFLAGS += -mcmodel=medany
 CFLAGS += -mstrict-align
 CFLAGS += -std=gnu99
 CFLAGS += -ffreestanding
+
+ifneq ($(DEBUG),0)
+CFLAGS += -Og -g
+else
 CFLAGS += -O2
-CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt
+endif
+CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I $(SRCDIR)/lib/riscv
 
 asm-offsets = lib/riscv/asm-offsets.h
 include $(SRCDIR)/scripts/asm-offsets.mak
