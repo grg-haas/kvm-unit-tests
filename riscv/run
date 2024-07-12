@@ -11,10 +11,13 @@ fi
 
 # Allow user overrides of some config.mak variables
 processor=$PROCESSOR_OVERRIDE
+memory=$MEMORY_OVERRIDE
 firmware=$FIRMWARE_OVERRIDE
 
 [ "$PROCESSOR" = "$ARCH" ] && PROCESSOR="max"
 : "${processor:=$PROCESSOR}"
+: "${memory:=$MEMORY}"
+[ "$memory" ] && memory="-m $memory"
 : "${firmware:=$FIRMWARE}"
 [ "$firmware" ] && firmware="-bios $firmware"
 
@@ -30,7 +33,7 @@ fi
 mach='-machine virt'
 
 command="$qemu -nodefaults -nographic -serial mon:stdio"
-command+=" $mach $acc $firmware -cpu $processor "
+command+=" $mach $acc $firmware -cpu $processor $memory"
 command="$(migration_cmd) $(timeout_cmd) $command"
 
 if [ "$UEFI_SHELL_RUN" = "y" ]; then

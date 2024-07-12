@@ -49,6 +49,7 @@ usage() {
 	    --arch=ARCH            architecture to compile for ($arch). ARCH can be one of:
 	                           arm, arm64, i386, ppc64, riscv32, riscv64, s390x, x86_64
 	    --processor=PROCESSOR  processor to compile for ($arch)
+	    --memory=MEMORY        amount of memory to run with
 	    --target=TARGET        target platform that the tests will be running on (qemu or
 	                           kvmtool, default is qemu) (arm/arm64 only)
 	    --cross-prefix=PREFIX  cross compiler prefix
@@ -118,6 +119,9 @@ while [[ "$1" = -* ]]; do
 	    ;;
         --processor)
 	    processor="$arg"
+	    ;;
+	--memory)
+	    memory="$arg"
 	    ;;
 	--target)
 	    target="$arg"
@@ -438,6 +442,7 @@ ARCH=$arch
 ARCH_NAME=$arch_name
 ARCH_LIBDIR=$arch_libdir
 PROCESSOR=$processor
+MEMORY=$memory
 CC=$cross_prefix$cc
 CFLAGS=$cflags
 LD=$cross_prefix$ld
