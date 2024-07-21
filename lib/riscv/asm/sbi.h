@@ -19,6 +19,7 @@ enum sbi_ext_id {
 	SBI_EXT_TIME = 0x54494d45,
 	SBI_EXT_HSM = 0x48534d,
 	SBI_EXT_SRST = 0x53525354,
+    SBI_EXT_MPXY = 0x4D505859
 };
 
 enum sbi_ext_base_fid {
@@ -40,6 +41,15 @@ enum sbi_ext_hsm_fid {
 
 enum sbi_ext_time_fid {
 	SBI_EXT_TIME_SET_TIMER = 0,
+};
+
+enum sbi_ext_mpxy_fid {
+	SBI_EXT_MPXY_SET_SHMEM = 0,
+	SBI_EXT_MPXY_READ_ATTRS,
+	SBI_EXT_MPXY_WRITE_ATTRS,
+	SBI_EXT_MPXY_SEND_MSG_WITH_RESP,
+	SBI_EXT_MPXY_SEND_MSG_NO_RESP,
+	SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS,
 };
 
 struct sbiret {
