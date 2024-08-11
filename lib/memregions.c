@@ -67,17 +67,49 @@ void memregions_split(phys_addr_t addr, struct mem_region **r1, struct mem_regio
 
 void memregions_add_dt_regions(size_t max_nr)
 {
-	struct dt_pbus_reg regs[max_nr];
-	int nr_regs, i;
+	struct dt_pbus_reg regs[max_nr], resv[max_nr];
+	int nr_regs, nr_resv, i = 0, j = 0;
 
 	nr_regs = dt_get_memory_params(regs, max_nr);
 	assert(nr_regs > 0);
 
-	for (i = 0; i < nr_regs; ++i) {
-		memregions_add(&(struct mem_region){
-			.start = regs[i].addr,
-			.end = regs[i].addr + regs[i].size,
-		});
+	nr_resv = dt_get_resv_params(resv, max_nr);
+	if (nr_resv < 0)
+		nr_resv = 0;
+
+	while (i < nr_regs || j < nr_resv) {
+		if (j == nr_resv) {
+			memregions_add(&(struct mem_region){
+				.start = regs[i].addr,
+				.end = regs[i].addr + regs[i].size,
+			});
+			++i;
+		} else {
+			if (resv[j].addr == regs[i].addr &&
+			    resv[j].size == regs[i].size) {
+				// Skip both of these
+				++i, ++j;
+			} else if (resv[j].addr == regs[i].addr) {
+				// Consume reservation
+				regs[i].addr += resv[j].size;
+				regs[i].size -= resv[j].size;
+				++j;
+			} else {
+				// If the reservation is in the middle of a memory node
+				if (resv[j].addr > regs[i].addr &&
+				    resv[j].addr + resv[j].size < regs[i].addr + regs[i].size) {
+
+					memregions_add(&(struct mem_region){
+						.start = regs[i].addr,
+						.end = resv[j].addr,
+					});
+
+					regs[i].size -= (resv[j].addr - regs[i].addr);
+					regs[i].addr = resv[j].addr + resv[j].size;
+					++j;
+				}
+			}
+		}
 	}
 }
 

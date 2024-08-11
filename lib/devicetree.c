@@ -173,6 +173,23 @@ int dt_pbus_get_base_compatible(const char *compatible,
 	return dt_pbus_get_base(&dev, base);
 }
 
+static void dt_pbus_regs_sort(struct dt_pbus_reg *regs, int nr)
+{
+	int i, j;
+	struct dt_pbus_reg reg;
+
+	for (i = 0; i < (nr - 1); i++) {
+		for (j = i + 1; j < nr; j++) {
+			if (regs[i].addr > regs[j].addr) {
+				// Swap these regions
+				memcpy(&reg, &regs[i], sizeof(struct dt_pbus_reg));
+				memcpy(&regs[i], &regs[j], sizeof(struct dt_pbus_reg));
+				memcpy(&regs[j], &reg, sizeof(struct dt_pbus_reg));
+			}
+		}
+	}
+}
+
 int dt_get_memory_params(struct dt_pbus_reg *regs, int nr_regs)
 {
 	const char *pn = "device_type", *pv = "memory";
@@ -199,6 +216,28 @@ int dt_get_memory_params(struct dt_pbus_reg *regs, int nr_regs)
 		node = fdt_node_offset_by_prop_value(fdt, node, pn, pv, pl);
 	}
 
+	dt_pbus_regs_sort(regs, nr);
+	return node != -FDT_ERR_NOTFOUND ? node : nr;
+}
+
+int dt_get_resv_params(struct dt_pbus_reg *regs, int nr_regs)
+{
+	int node, nr = 0, ret;
+	struct dt_pbus_reg reg;
+
+	fdt_for_each_subnode(node, fdt, fdt_path_offset(fdt, "/reserved-memory")) {
+		if (nr < nr_regs) {
+			ret = dt_pbus_translate_node(node, 0, &reg);
+			if (ret < 0)
+				return ret;
+
+			regs[nr].addr = reg.addr;
+			regs[nr].size = reg.size;
+			++nr;
+		}
+	}
+
+	dt_pbus_regs_sort(regs, nr);
 	return node != -FDT_ERR_NOTFOUND ? node : nr;
 }
 

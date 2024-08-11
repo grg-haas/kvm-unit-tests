@@ -232,12 +232,22 @@ extern int dt_get_initrd(const char **initrd, u32 *size);
 /*
  * dt_get_memory_params gets the memory parameters from the /memory node(s)
  * storing each memory region ("address size" tuple) in consecutive entries
- * of @regs, up to @nr_regs
+ * of @regs, up to @nr_regs, which are returned sorted
  * returns
  *  - number of memory regions found on success
  *  - a negative FDT_ERR_* value on failure
  */
 extern int dt_get_memory_params(struct dt_pbus_reg *regs, int nr_regs);
+
+/*
+ * dt_get_resv_params gets the memory parameters from the /reserved-memory
+ * subnodes storing each memory region ("address size" tuple) in consecutive
+ * entries of @regs, up to @nr_regs, which are returned sorted
+ * returns
+ *  - number of reserved memory regions found on success
+ *  - a negative FDT_ERR_* value on failure
+ */
+extern int dt_get_resv_params(struct dt_pbus_reg *regs, int nr_regs);
 
 /*
  * dt_for_each_cpu_node runs @func on each cpu node in the /cpus node
